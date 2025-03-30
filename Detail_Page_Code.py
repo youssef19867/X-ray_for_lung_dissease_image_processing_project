@@ -75,14 +75,31 @@ class Histogram_operations:
             self.isequalized=True
         
 class spatial_filtering:
-    def __init__(self,pixmap):
+    def __init__(self,pixmap,ui,parent):
+        self.ui=ui
         self.pixmap=pixmap
+        self.parent=parent
     def contrast_stretching(self,img):
         pass
     def log_transform(self,img):
         pass
-    def gamma_correction(self,img):
-        pass
+    def gamma_correction(self, img):
+        try:
+            Lmax = 255
+            r = max(0.1, self.ui.horizontalSlider.value() / 10.0)
+            
+            img_float = img.astype(np.float32)
+            
+            corrected_img = Lmax * (img_float / Lmax) ** r
+        
+            corrected_img = np.clip(corrected_img, 0, 255).astype(np.uint8)
+        
+            self.parent.zamodified_img = corrected_img
+            self.parent.display_image(corrected_img)
+        except Exception as e:
+            traceback.print_exc()
+        
+
     def inverse_image(self,img):
         pass
     def image_thresholding(self,img):
@@ -98,11 +115,11 @@ class DetailWidget(QWidget):  # Changed from QMainWindow to QWidget
         self.main_window=main_window
         self.ui.toolButton.clicked.connect(self.back_to_main_window)
         self.histobj=Histogram_operations(self.Zamodified_img,self.ui,self)
-        
+        self.spatialobj=spatial_filtering(self.Zamodified_img,self.ui,self)
         self.ui.checkBox.toggled.connect(
         lambda checked: self.histobj.histogram_equalization(self.Zamodified_img) if checked else None)
-        self.ui.pushButton_4.clicked.connect(self.save_image)
-            
+        self.ui.horizontalSlider.valueChanged.connect(lambda : self.spatialobj.gamma_correction(self.Zamodified_img))
+          
 
     def save_image(self):
         if not hasattr(self, 'Zamodified_img'):
@@ -116,6 +133,7 @@ class DetailWidget(QWidget):  # Changed from QMainWindow to QWidget
         self.hide()
    
 
+    
     def display_image(self, zamodified_img):
         try:
             # Set label size to match frame
@@ -126,13 +144,23 @@ class DetailWidget(QWidget):  # Changed from QMainWindow to QWidget
 
             # Handle different image types
             if isinstance(zamodified_img, QPixmap):
-                # Set QPixmap directly without scaling
-                self.ui.label_11.setPixmap(zamodified_img)
+                # Scale QPixmap directly
+                scaled_pixmap = zamodified_img.scaled(
+                    self.ui.label_11.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                self.ui.label_11.setPixmap(scaled_pixmap)
 
             elif isinstance(zamodified_img, QImage):
-                # Convert QImage to QPixmap and set without scaling
+                # Convert QImage to QPixmap and scale
                 pixmap = QPixmap.fromImage(zamodified_img)
-                self.ui.label_11.setPixmap(pixmap)
+                scaled_pixmap = pixmap.scaled(
+                    self.ui.label_11.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                self.ui.label_11.setPixmap(scaled_pixmap)
 
             elif isinstance(zamodified_img, np.ndarray):
                 # Handle OpenCV image (numpy array)
@@ -163,9 +191,14 @@ class DetailWidget(QWidget):  # Changed from QMainWindow to QWidget
                     q_format
                 )
 
-                # Convert to QPixmap and set without scaling
+                # Convert to QPixmap and scale
                 pixmap = QPixmap.fromImage(q_img)
-                self.ui.label_11.setPixmap(pixmap)
+                scaled_pixmap = pixmap.scaled(
+                    self.ui.label_11.size(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                self.ui.label_11.setPixmap(scaled_pixmap)
                 print("displayed")
 
             else:
@@ -175,7 +208,6 @@ class DetailWidget(QWidget):  # Changed from QMainWindow to QWidget
             print(f"Error displaying image: {str(e)}")
             import traceback
             traceback.print_exc()
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = DetailWidget()
