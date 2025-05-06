@@ -1,519 +1,240 @@
-from Detail_Page_UI import Ui_Form  
-from Custom_Page_Code import custom_filter_widget
-from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QWidget
-from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtCore import Qt
+
+from Main_Page_UI import Ui_MainWindow
+from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox,QListView,QLabel
+from PyQt6.QtGui import QPixmap, QStandardItemModel, QStandardItem
+from PyQt6.QtCore import Qt, QObject, pyqtSignal, QThread,QStringListModel
+
 import numpy as np
 import sys
 import joblib
 from PIL import Image
 import matplotlib.pyplot as plt
+from Detail_Page_Code import DetailWidget
 from keras.preprocessing import image
 from keras.models import load_model
 import os
-import traceback
-import cv2
+import requests
+from bs4 import BeautifulSoup
 import threading
-class Histogram_operations:
-    def __init__(self,pixmap,ui,parent):
-        self.pixmap=pixmap
-        self.ui=ui
-        self.parent=parent
-        self.isequalized=False
-        
-    
-    def histogram_equalization(self, img2):
-        def work(self, img2):
-            try:
-                img = img2
-                histogram = {i: 0 for i in range(256)}
-                H, W = img.shape
-                for y in range(H):
-                    for x in range(W):
-                        intensity = img[y, x]
-                        histogram[intensity] += 1
-                self.ui.progressBar.setValue(25)  # 25% after histogram
-                
-                prob_histo = {i: 0 for i in range(256)}
-                for nj in histogram.keys():
-                    prob_histo[nj] = histogram[nj] / (H * W)
-                self.ui.progressBar.setValue(50)  # 50% after prob_histo
-                
-                cp = {i: 0 for i in range(256)}
-                total = 0
-                for cumul in prob_histo.keys():
-                    total += prob_histo[cumul]
-                    cp[cumul] = total
-                self.ui.progressBar.setValue(50)
-                
-                maxval = max(histogram.keys())
-                self.ui.progressBar.setValue(75)  # 75% after finding maxval
-                
-                for key in cp.keys():
-                    cp[key] = cp[key] * maxval
-                
-                lut = np.zeros(256, dtype=img.dtype)
-                for i in range(256):
-                    self.ui.progressBar.setValue(int((i / 255) * 100))
-                    lut[i] = cp[i]
+import requests
+from bs4 import BeautifulSoup
+from PyQt6.QtCore import QObject, pyqtSignal
+import requests
+from bs4 import BeautifulSoup
+from PyQt6.QtCore import QObject, pyqtSignal
+import re
 
-                
-                new_img = lut[img]
-                #self.ui.progressBar.setValue(100)
-                self.ui.progressBar.setValue(100)  # Complete to 100%
-                self.ui.progressBar.setValue(self.ui.progressBar.minimum())  # Reset
-                
-                img2 = new_img
-                self.parent.zamodified_img=new_img
-                self.parent.display_image(new_img)
-                print("done")
-                return new_img
-            except Exception as e:  
-                traceback.print_exc()
-                
-        if self.isequalized==False:
-            thread = threading.Thread(target=work, args=(self, img2,))
-            thread.start()
-            self.isequalized=True
-    def adaptive_limited_equalization(self,img2):
-        try:
-            # Get the original image
-            img = self.parent.Zamodified_img
-            
-            # Check if image is grayscale or color
-            if len(img.shape) == 2:
-                # For grayscale images
-                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-                equalized = clahe.apply(img)
-            else:
-                # For color images, convert to LAB color space
-                lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-                
-                # Split the LAB channels
-                l, a, b = cv2.split(lab)
-                
-                # Apply CLAHE to the L channel
-                clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-                l_equalized = clahe.apply(l)
-                
-                # Merge the channels back
-                lab_equalized = cv2.merge((l_equalized, a, b))
-                
-                # Convert back to BGR color space
-                equalized = cv2.cvtColor(lab_equalized, cv2.COLOR_LAB2BGR)
-            
-        # Update the image
-        # self.parent.Zamodified_img = equalized
-            self.parent.display_image(equalized)
-            self.ui.progressBar.setValue(100)
-            
-        except Exception as e:
-            traceback.print_exc()
-    def adaptive_histogram_equalization(self,img2):
-        try:
-            # Get the original image
-            img = self.parent.Zamodified_img
-            
-            # Check if image is grayscale or color
-            if len(img.shape) == 2:
-                # For grayscale images
-                # Create AHE object (without clip limit)
-                clahe = cv2.createCLAHE(clipLimit=0.0, tileGridSize=(8, 8))
-                equalized = clahe.apply(img)
-            else:
-                # For color images, convert to LAB color space
-                lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
-                
-                # Split the LAB channels
-                l, a, b = cv2.split(lab)
-                
-                # Apply AHE to the L channel (no clip limit for pure AHE)
-                clahe = cv2.createCLAHE(clipLimit=0.0, tileGridSize=(8, 8))
-                l_equalized = clahe.apply(l)
-                
-                # Merge the channels back
-                lab_equalized = cv2.merge((l_equalized, a, b))
-                
-                # Convert back to BGR color space
-                equalized = cv2.cvtColor(lab_equalized, cv2.COLOR_LAB2BGR)
-            
-            # Update the image
-           # self.parent.Zamodified_img = equalized
-            self.parent.display_image(equalized)
-            self.ui.progressBar.setValue(100)
-            
-        except Exception as e:
-            traceback.print_exc()
-        
-    def histogram_shifting(self,img2):
-        try:
-            # Get the original image
-            img = self.parent.Zamodified_img
-            
-            # Get the slider value for brightness adjustment
-            shift_value = 80  # Assuming slider range 0-100, with 50 as neutral
-            
-            # Create a matrix of ones with the same shape as the image
-            ones = np.ones(img.shape, dtype=np.uint8) * abs(shift_value)
-            
-            # Perform the shifting operation
-            if shift_value >= 0:
-                # Increase brightness (add values)
-                shifted = cv2.add(img, ones)
-            else:
-                # Decrease brightness (subtract values)
-                shifted = cv2.subtract(img, ones)
-            
-            # Update the image
-            #self.parent.Zamodified_img = shifted
-            self.parent.display_image(shifted)
-            self.ui.progressBar.setValue(100)
-            
-        except Exception as e:
-            traceback.print_exc()
-    def quantile_based_equalization(self,img2):
-        try:
-            # Get the original image
-            img = self.parent.Zamodified_img
-            
-            # Check if image is grayscale or color
-            if len(img.shape) == 2:
-                # For grayscale images
-                # Calculate the cumulative distribution function (CDF)
-                hist = cv2.calcHist([img], [0], None, [256], [0, 256])
-                cdf = hist.cumsum()
-                
-                # Normalize the CDF to the range [0, 255]
-                cdf_normalized = (cdf - cdf.min()) * 255 / (cdf.max() - cdf.min())
-                cdf_normalized = cdf_normalized.astype(np.uint8)
-                
-                # Use the normalized CDF as a lookup table for pixel values
-                equalized = cdf_normalized[img]
-            else:
-                # For color images, process each channel separately
-                # Convert to YCrCb color space (to preserve color while adjusting luminance)
-                ycrcb = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
-                y, cr, cb = cv2.split(ycrcb)
-                
-                # Calculate CDF for Y channel
-                hist = cv2.calcHist([y], [0], None, [256], [0, 256])
-                cdf = hist.cumsum()
-                
-                # Normalize the CDF
-                cdf_normalized = (cdf - cdf.min()) * 255 / (cdf.max() - cdf.min())
-                cdf_normalized = cdf_normalized.astype(np.uint8)
-                
-                # Apply equalization to Y channel
-                y_equalized = cdf_normalized[y]
-                
-                # Merge channels back
-                ycrcb_equalized = cv2.merge((y_equalized, cr, cb))
-                
-                # Convert back to BGR
-                equalized = cv2.cvtColor(ycrcb_equalized, cv2.COLOR_YCrCb2BGR)
-            
-            # Update the image
-            #self.parent.Zamodified_img = equalized
-            self.parent.display_image(equalized)
-            self.ui.progressBar.setValue(100)
-            
-        except Exception as e:
-            traceback.print_exc()
-class spatial_filtering:
-    def __init__(self,pixmap,ui,parent):
-        self.ui=ui
-        self.pixmap=pixmap
-        self.parent=parent
-        self.original_img=self.parent.Zamodified_img
-    def contrast_stretching(self,img):
-        try:
-            self.ui.progressBar.setValue(10)
-            img=self.parent.Zamodified_img
-            Lmax = 255
-            new_min=int(self.ui.lineEdit_2.text())
-            new_max=int(self.ui.lineEdit.text())
-            
-            img_float = img.astype(np.float32)
-            
-            corrected_img = img_float-0//Lmax*(new_max-new_min)+new_min
-        
-            corrected_img = np.clip(corrected_img, 0, 255).astype(np.uint8)
-            self.ui.progressBar.setValue(100)
-            #self.parent.Zamodified_img = corrected_img
-            self.parent.display_image(corrected_img)
-            self.ui.progressBar.setValue(self.ui.progressBar.minimum())
-        except Exception as e:
-            traceback.print_exc()
-    def log_transform(self):
-          try:
-            self.ui.progressBar.setValue(10)
-            img=self.parent.Zamodified_img
-            Lmax = 255
-            c=self.ui.verticalSlider_2.value()
-            
-            img_float = img.astype(np.float32)
-            
-            corrected_img = c * np.log(1 + img_float)
-        
-            corrected_img = np.clip(corrected_img, 0, 255).astype(np.uint8)
-            self.ui.progressBar.setValue(100)
-            #self.parent.Zamodified_img = corrected_img
-            self.parent.display_image(corrected_img)
-            self.ui.progressBar.setValue(self.ui.progressBar.minimum())
-          except Exception as e:
-            traceback.print_exc()
-    def gamma_correction(self):
-        try:
-                        # Start progress bar
-            self.ui.progressBar.setValue(10)
+class ScraperWorker(QObject):
+    finished = pyqtSignal(list, str)
 
-            # Get original image
-            img = self.original_img
-
-            # Make sure it's float for processing
-            img_float = img.astype(np.float32)
-
-            # Compute gamma value safely
-            gamma = max(0.1, self.ui.horizontalSlider.value() / 20.0)
-
-            # Apply gamma correction
-            corrected_img = 255 * np.power(img_float / 255.0, gamma)
-
-            # Clip values to valid range and convert back to uint8
-            corrected_img = np.clip(corrected_img, 0, 255).astype(np.uint8)
-
-            # Update progress bar
-            self.ui.progressBar.setValue(100)
-
-            # Display corrected image
-            self.parent.display_image(corrected_img)
-
-            # Reset progress bar
-            self.ui.progressBar.setValue(self.ui.progressBar.minimum())
-
-        except Exception as e:
-            traceback.print_exc()
-        
-
-    def inverse_image(self,img):
-        try:
-            self.ui.progressBar.setValue(10)
-            img=self.parent.Zamodified_img
-            Lmax = 255
-            
-            
-            img_float = img.astype(np.float32)
-            
-            corrected_img = Lmax-img_float
-        
-            corrected_img = np.clip(corrected_img, 0, 255).astype(np.uint8)
-            self.ui.progressBar.setValue(100)
-            #self.parent.Zamodified_img = corrected_img
-            self.parent.display_image(corrected_img)
-            self.ui.progressBar.setValue(self.ui.progressBar.minimum())
-        except Exception as e:
-            traceback.print_exc()
-    def image_thresholding(self):
-        try:
-            self.ui.progressBar.setValue(10)
-            # Get current image from parent
-            img = self.parent.Zamodified_img  # Lowercase z for consistency
-            
-            # Get threshold value from dial (0-255)
-            threshold = self.ui.dial.value()
-            
-            # Vectorized thresholding using NumPy operations
-            thresholded = np.where(img >= threshold, 255, 0).astype(np.uint8)
-            
-            self.ui.progressBar.setValue(90)
-            
-            # Update and display
-            self.parent.zamodified_img = thresholded
-            self.parent.display_image(thresholded)
-            self.ui.progressBar.setValue(100)
-            
-        except Exception as e:
-            traceback.print_exc()
-        finally:
-            self.ui.progressBar.setValue(self.ui.progressBar.minimum())
-    
-    def laplacian_sharpning(self):
-        try:
-            # Get the original image
-            img = self.parent.Zamodified_img
-            
-            # Get the slider value (sharpening strength)
-            strength = self.ui.horizontalSlider_2.value()
-            
-            # Apply Laplacian filter to detect edges
-            laplacian = cv2.Laplacian(img, cv2.CV_64F)
-            
-            # Convert back to uint8
-            laplacian = cv2.convertScaleAbs(laplacian)
-            
-            # Scale the effect based on slider value (assuming slider range is 0-100)
-            # We'll scale it to a reasonable range, e.g., 0 to 2.0
-            alpha = strength / 50.0  # This makes the middle value (50) equal to alpha=1.0
-            
-            # Apply sharpening: Original + (alpha * Laplacian)
-            sharpened = cv2.addWeighted(img, 1.0, laplacian, alpha, 0)
-            
-            # Update the image
-            #self.parent.Zamodified_img = sharpened
-            self.parent.display_image(sharpened)
-            self.ui.progressBar.setValue(100)
-            
-        except Exception as e:
-            traceback.print_exc()
-    def gaussian_blur(self):
-        try:
-            # Get the original image
-            img = self.parent.Zamodified_img
-            
-            # Get the slider value for kernel size
-            k_value = self.ui.verticalSlider.value()
-            
-            # Ensure k is odd (required for Gaussian blur kernel)
-            k = k_value * 2 + 1 if k_value > 0 else 1
-            
-            # Apply Gaussian blur
-            # The sigma value is left at 0 so OpenCV calculates it automatically based on kernel size
-            blurred = cv2.GaussianBlur(img, (k, k), 0)
-            
-            # Update the image
-            #self.parent.Zamodified_img = blurred
-            self.parent.display_image(blurred)
-            self.ui.progressBar.setValue(100)
-            
-        except Exception as e:
-            traceback.print_exc()
-class DetailWidget(QWidget):  # Changed from QMainWindow to QWidget
-    def __init__(self,location_of_image,main_window):
+    def __init__(self, predicted_class, scrape_type):
         super().__init__()
-        self.ui = Ui_Form()  # Changed to use Ui_Form instead of Ui_MainWindow
-        self.ui.setupUi(self)
-        self.Zamodified_img=cv2.imread(location_of_image,cv2.IMREAD_GRAYSCALE)
-     
-        self.display_image(self.Zamodified_img)
-        self.main_window=main_window
-        self.ui.toolButton.clicked.connect(self.back_to_main_window)
-        self.histobj=Histogram_operations(self.Zamodified_img,self.ui,self)
-        self.spatialobj=spatial_filtering(self.Zamodified_img,self.ui,self)
-        self.ui.checkBox.toggled.connect(
-        lambda checked: self.histobj.histogram_equalization(self.Zamodified_img) if checked else None)
-        self.ui.checkBox_3.toggled.connect(
-        lambda checked: self.histobj.adaptive_limited_equalization(self.Zamodified_img) if checked else None
-        )
-        self.ui.checkBox_2.toggled.connect(
-        lambda checked: self.histobj.adaptive_histogram_equalization(self.Zamodified_img) if checked else None
-        )
-        self.ui.checkBox_4.toggled.connect(
-        lambda checked: self.histobj.histogram_shifting(self.Zamodified_img) if checked else None
-        )
-        self.ui.checkBox_5.toggled.connect(
-        lambda checked: self.histobj.quantile_based_equalization(self.Zamodified_img) if checked else None
-        )
-        self.ui.horizontalSlider.valueChanged.connect(self.spatialobj.gamma_correction)
-        self.ui.horizontalSlider_2.valueChanged.connect(self.spatialobj.laplacian_sharpning)
-        self.ui.verticalSlider_2.valueChanged.connect(self.spatialobj.log_transform)
-        self.ui.verticalSlider.valueChanged.connect(self.spatialobj.gaussian_blur)
-        self.ui.pushButton_2.clicked.connect(self.spatialobj.contrast_stretching)
-        self.ui.pushButton_3.clicked.connect(self.spatialobj.inverse_image) 
-        self.ui.dial.valueChanged.connect(self.spatialobj.image_thresholding)
-        self.ui.pushButton_5.clicked.connect(self.open_custom_filter_page)
-    def open_custom_filter_page(self):
-        self.custom_filter_page = custom_filter_widget()
-        self.hide()
-        self.custom_filter_page.show()
-    def save_image(self):
-        if not hasattr(self, 'Zamodified_img'):
-            return
-            
-        file_path = "newimg.png"
-        if file_path:
-            cv2.imwrite(file_path, self.Zamodified_img)   
-    def back_to_main_window(self):
-        self.main_window.show()
-        self.hide()
-   
+        self.predicted_class = predicted_class.lower()
+        self.scrape_type = scrape_type
 
-    
-    def display_image(self, zamodified_img):
+    def run(self):
         try:
-            # Set label size to match frame
-            self.ui.label_11.setFixedSize(self.ui.frame.size())
+            data = self.scrape_wikipedia(self.scrape_type)
             
-            # Center-align the content within the label
-            self.ui.label_11.setAlignment(Qt.AlignmentFlag.AlignCenter)
+             
+        except Exception as e:
+            print(f"Error in {self.scrape_type} scraper: {str(e)}")
+            data = [f"Error fetching {self.scrape_type} data."]
+        self.finished.emit(data, self.scrape_type)
+        
 
-            # Handle different image types
-            if isinstance(zamodified_img, QPixmap):
-                # Scale QPixmap directly
-                scaled_pixmap = zamodified_img.scaled(
-                    self.ui.label_11.size(),
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
-                )
-                self.ui.label_11.setPixmap(scaled_pixmap)
+    def format_condition(self):
+        return self.predicted_class.replace('_', ' ').replace(' ', '_')
 
-            elif isinstance(zamodified_img, QImage):
-                # Convert QImage to QPixmap and scale
-                pixmap = QPixmap.fromImage(zamodified_img)
-                scaled_pixmap = pixmap.scaled(
-                    self.ui.label_11.size(),
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
-                )
-                self.ui.label_11.setPixmap(scaled_pixmap)
+    def scrape_wikipedia(self,thing):
+        try:
+            condition = self.format_condition()
+            print(f"Scraping data for condition: {condition}")
+            url = f"https://en.wikipedia.org/wiki/{condition}"
 
-            elif isinstance(zamodified_img, np.ndarray):
-                # Handle OpenCV image (numpy array)
-                height, width = zamodified_img.shape[:2]
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+            response = requests.get(url, headers=headers, timeout=10)
+
+            if response.status_code != 200:
+                return [f"Failed to retrieve Wikipedia page for {condition} (Status: {response.status_code})"]
+
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Find all paragraphs
+            paragraphs = soup.find_all('p')
+
+            # Filter paragraphs that contain both "causes" and the condition name
+            matched_paragraphs = [
+                p.get_text(strip=True) for p in paragraphs
+                if thing in p.get_text().lower() and condition.lower() in p.get_text().lower()
+            ]
+
+            return matched_paragraphs if matched_paragraphs else [f"No relevant 'causes'or 'treatment' information found for {condition}."]
+        
+        except requests.exceptions.RequestException as e:
+            return [f"Network error: {str(e)}"]
+        except Exception as e:
+            return [f"Scraping error: {str(e)}"]
+
+
+
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.ui.pushButton.clicked.connect(self.open_file_explorer)
+        self.ui.pushButton_5.clicked.connect(self.open_detail_window)
+        # Initialize UI elements
+        self.ui.label.clear()
+        self.ui.label.setParent(self.ui.frame)
+        self.ui.label.setGeometry(self.ui.frame.rect())
+        self.ui.frame.resizeEvent = self.resize_label
+        self.pixmap = None
+        self.file_path = None
+        # Load model and class name
+        
+        thread = threading.Thread(target=self.load_model)
+        thread.start()
+        
+        #self.img_size = (150, 150)  # Update based on model's input requirements
+    def load_model(self):
+        
+        model = load_model('chaegaeg.keras', compile=False)
+        self.model=model
+        print("Model loaded successfully.")
+        
+        self.class_labels = ['COVID-19', 'Lung_opcaity', 'normal', 'Pneumonia']
+    def open_detail_window(self):
+        self.detail_window = DetailWidget(self.file_path,self)
+        self.hide()
+        self.detail_window.show()
+ 
+    def resize_label(self, event):
+        self.ui.label.setGeometry(self.ui.frame.rect())
+        super().resizeEvent(event)
+    
+    def preprocess_image(self, img_path,target_size=(128, 128)):
+        """Process image for model input"""
+        try:
+             img = image.load_img(img_path, target_size=target_size, color_mode='grayscale')  # Load and resize the image
+             
+             img_array = image.img_to_array(img)  # Convert to numpy array
+             img_array = img_array / 255.0  # Normalize pixel values to [0, 1]
+             img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+             
+             return img_array
+        except Exception as e:
+            raise ValueError(f"Failed to preprocess image: {str(e)}")
+    def predict_image(self,img_path):
+        # Preprocess the image
+        img_array = self.preprocess_image(img_path)
+        
+        # Make a prediction
+        predictions = self.model.predict(img_array)
+        predicted_class_index = np.argmax(predictions, axis=1)[0]  # Get the predicted class index
+        predicted_class_label = self.class_labels[predicted_class_index]  # Get the class label
+        confidence = np.max(predictions)  # Get the confidence score
+        
+        # Display the image and prediction
+        img = image.load_img(img_path)
+        
+        
+        return predicted_class_label, confidence
+    def open_file_explorer(self):
+        try:
+            file_path, _ = QFileDialog.getOpenFileName(
+                self, "Open Skin Image", "", 
+                "Image Files (*.png *.jpg *.jpeg *.bmp)"
+            )
+
+            if not file_path:
+                return
+
+            # Validate image file
+            if not file_path.lower().endswith(('.png', '.PNG')):
+                QMessageBox.warning(self, "Invalid File", "Supported formats: JPG, JPEG")
+                return
+            self.file_path=file_path
+            # Display image
+            pixmap = QPixmap(file_path)
+            self.pixmap = pixmap
+            if pixmap.isNull():
+                raise ValueError("Corrupted or unsupported image file")
                 
-                # Convert BGR to RGB for color images
-                if len(zamodified_img.shape) == 3 and zamodified_img.shape[2] == 3:
-                    rgb_image = cv2.cvtColor(zamodified_img, cv2.COLOR_BGR2RGB)
-                    bytes_per_line = 3 * width
-                    q_format = QImage.Format.Format_RGB888
-                    img_data = rgb_image.data
-                else:
-                    # Grayscale image
-                    if len(zamodified_img.shape) == 2:
-                        img_data = zamodified_img.data
-                        bytes_per_line = width
-                        q_format = QImage.Format.Format_Grayscale8
-                    else:
-                        raise ValueError("Unsupported numpy image format")
+            self.ui.label.setPixmap(pixmap.scaled(
+                self.ui.frame.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            ))
+            self.ui.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-                # Create QImage and ensure data is contiguous
-                img_data_contiguous = np.ascontiguousarray(img_data)
-                q_img = QImage(
-                    img_data_contiguous.data, 
-                    width, 
-                    height, 
-                    bytes_per_line, 
-                    q_format
-                )
+            # Make prediction
+            predicted_class, confidence= self.predict_image(file_path)
+            # After showing the message box
+            self.start_scrapers(predicted_class)
+            msg_box = QMessageBox()  # Create a message box
+            msg_box.setWindowTitle("Prediction Result")  # Set the title
+            msg_box.setText(f"Predicted Class: {predicted_class}\nConfidence: {confidence:.2f}")  # Set the message
+            
+            msg_box.exec()
 
-                # Convert to QPixmap and scale
-                pixmap = QPixmap.fromImage(q_img)
-                scaled_pixmap = pixmap.scaled(
-                    self.ui.label_11.size(),
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
-                )
-                self.ui.label_11.setPixmap(scaled_pixmap)
-                print("displayed")
+            # Get proper medical name
+    
 
-            else:
-                print(f"Unsupported image type: {type(zamodified_img)}")
+            # Show diagnostic report
+          
 
         except Exception as e:
-            print(f"Error displaying image: {str(e)}")
-            import traceback
-            traceback.print_exc()
+            error_msg = (
+                f"Error: {str(e)}\n\n"
+                "Possible Solutions:\n"
+                "1. Use clear, non-blurry images\n"
+                "2. Ensure proper lighting\n"
+                "3. Capture affected area clearly\n"
+                "4. Avoid makeup/creams on skin"
+            )
+            QMessageBox.critical(self, "Analysis Failed", error_msg)
+            print(f"Error details: {str(e)}")
+    def handle_scraped_data(self, data, scrape_type):
+        model = QStringListModel()
+        model.setStringList(data)
+
+        if scrape_type == 'causes':
+            self.ui.listView_2.setModel(model)
+            self.ui.listView_2.setWordWrap(True)  # Enable word wrap
+              # Disable horizontal scroll
+        else:
+            self.ui.listView.setModel(model)
+            self.ui.listView.setWordWrap(True)
+            
+    def start_scrapers(self, predicted_class):
+        if predicted_class == 'normal':
+            return
+        # Causes scraper
+        self.causes_worker = ScraperWorker(predicted_class, 'causes')
+        self.causes_thread = QThread()
+        self.causes_worker.moveToThread(self.causes_thread)
+        self.causes_worker.finished.connect(self.handle_scraped_data)
+        self.causes_thread.started.connect(self.causes_worker.run)
+        self.causes_thread.start()
+
+        # Treatment scraper
+        self.treatment_worker = ScraperWorker(predicted_class, 'treatment')
+        self.treatment_thread = QThread()
+        self.treatment_worker.moveToThread(self.treatment_thread)
+        self.treatment_worker.finished.connect(self.handle_scraped_data)
+        self.treatment_thread.started.connect(self.treatment_worker.run)
+        self.treatment_thread.start()
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = DetailWidget()
-    window.showMaximized()
-    sys.exit(app.exec())
+    try:
+        window = MainWindow()
+        window.showMaximized()
+        sys.exit(app.exec())
+    except Exception as e:
+        QMessageBox.critical(None, "Fatal Error", f"Application failed: {str(e)}")
+        sys.exit(1)
