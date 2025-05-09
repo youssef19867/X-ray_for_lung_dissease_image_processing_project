@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImageEnhancementWidget</class>
+ <widget class="QWidget" name="ImageEnhancementWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1565</width>
+    <height>949</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Image Enhancement</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* Main Application Background */
+QWidget {
+    background-color: #1A1C1D; /* Almost black */
+    color: #FFFFFF; /* White text */
+    font-family: &quot;Consolas&quot;, &quot;Monospace&quot;;
+    font-size: 14px;
+}
+
+/* Buttons */
+QPushButton {
+    background-color: #5CE1E6; /* Cold cyan */
+    color: #1A1C1D; /* Dark text on bright button */
+    border: 1px solid #5CE1E6;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+QPushButton:hover {
+    background-color: #8CE3F5; /* Light neon on hover */
+}
+
+QPushButton:pressed {
+    background-color: #00B4D8; /* Stronger cyan on press */
+}
+
+/* Text Inputs */
+QLineEdit, QTextEdit {
+    background-color: #2E3233; /* Dark panel */
+    color: #FFFFFF;
+    border: 1px solid #5CE1E6;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+QLineEdit:focus, QTextEdit:focus {
+    border: 1px solid #00B4D8; /* Glow cyan focus */
+}
+
+/* Labels */
+QLabel {
+    color: #8CE3F5;
+}
+
+/* Scrollbars */
+QScrollBar:vertical, QScrollBar:horizontal {
+    background-color: #2E3233;
+}
+
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    background-color: #5CE1E6;
+    border-radius: 6px;
+}
+
+/* Menus */
+QMenuBar {
+    background-color: #1A1C1D;
+    color: #FFFFFF;
+}
+
+QMenuBar::item:selected {
+    background-color: #00B4D8;
+}
+
+QMenu {
+    background-color: #2E3233;
+    color: #FFFFFF;
+    border: 1px solid #5CE1E6;
+}
+
+QMenu::item:selected {
+    background-color: #5CE1E6;
+    color: #1A1C1D;
+}
+
+/* Tabs */
+QTabWidget::pane {
+    background: #2E3233;
+    border: 1px solid #5CE1E6;
+}
+
+QTabBar::tab {
+    background: #2E3233;
+    color: #8CE3F5;
+    padding: 8px 12px;
+    border: 1px solid #5CE1E6;
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+QTabBar::tab:selected {
+    background: #1A1C1D;
+}
+
+QTabBar::tab:hover {
+    background: #5CE1E6;
+    color: #1A1C1D;
+}
+
+/* Sliders */
+QSlider::groove:horizontal {
+    background: #5A595C;
+    height: 6px;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: #5CE1E6;
+    width: 16px;
+    height: 16px;
+    margin: -5px 0;
+    border-radius: 8px;
+}
+
+/* Progress Bars */
+QProgressBar {
+    background-color: #2E3233;
+    border: 1px solid #5CE1E6;
+    border-radius: 4px;
+    color: #FFFFFF;
+}
+
+QProgressBar::chunk {
+    background-color: #5CE1E6;
+    border-radius: 4px;
+}
+
+/* Group Boxes */
+QGroupBox {
+    border: 1px solid #5CE1E6;
+    border-radius: 4px;
+    margin-top: 10px;
+    padding-top: 10px;
+    color: #8CE3F5;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 5px;
+    background-color: #1A1C1D;
+}</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="topLayout">
+     <item>
+      <widget class="QPushButton" name="backButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>80</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Back</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="imageFramesLayout">
+     <item>
+      <layout class="QVBoxLayout" name="originalImageLayout">
+       <item>
+        <widget class="QLabel" name="originalImageLabel">
+         <property name="text">
+          <string>Original Image</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="originalImageFrame">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>300</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="enhancedImageLayout">
+       <item>
+        <widget class="QLabel" name="enhancedImageLabel">
+         <property name="text">
+          <string>Enhanced Image</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="enhancedImageFrame">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>300</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="areaOfImportanceLayout">
+       <item>
+        <widget class="QLabel" name="areaOfImportanceLabel">
+         <property name="text">
+          <string>Area of Importance</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="areaOfImportanceFrame">
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>300</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QProgressBar" name="progressBar">
+     <property name="value">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="bottomLayout">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

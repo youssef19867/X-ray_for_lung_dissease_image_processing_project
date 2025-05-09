@@ -13,190 +13,214 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1521, 851)
-        MainWindow.setStyleSheet("/* Main Application Background */\n"
-"QWidget {\n"
-"    background-color: #2D2A2E; /* Dark gray background */\n"
-"    color: #FFD866; /* Golden text */\n"
-"    font-family: \"Consolas\", \"Monospace\";\n"
-"    font-size: 14px;\n"
-"}\n"
-"\n"
-"/* Buttons */\n"
-"QPushButton {\n"
-"    background-color: #FFD866; /* Golden hue */\n"
-"    color: #2D2A2E; /* Dark gray text for contrast */\n"
-"    border: 1px solid #FFD866; /* Golden border */\n"
-"    border-radius: 4px;\n"
-"    padding: 5px 10px;\n"
-"    font-size: 14px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #FFB52E; /* Slightly darker golden hue on hover */\n"
-"    border: 1px solid #FFB52E;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: #FF9F00; /* Even darker golden hue when pressed */\n"
-"    border: 1px solid #FF9F00;\n"
-"}\n"
-"\n"
-"/* Text Inputs (QLineEdit, QTextEdit) */\n"
-"QLineEdit, QTextEdit {\n"
-"    background-color: #3E3D40; /* Dark gray */\n"
-"    color: #FFD866; /* Golden text */\n"
-"    border: 1px solid #5A595C; /* Slightly lighter gray border */\n"
-"    border-radius: 4px;\n"
-"    padding: 5px;\n"
-"    font-size: 14px;\n"
-"}\n"
-"\n"
-"QLineEdit:focus, QTextEdit:focus {\n"
-"    border: 1px solid #FFD866; /* Yellow border on focus */\n"
-"}\n"
-"\n"
-"/* Labels */\n"
-"QLabel {\n"
-"    color: #FFD866; /* Golden text */\n"
-"    font-size: 14px;\n"
-"}\n"
-"\n"
-"/* Scrollbars */\n"
-"QScrollBar:vertical, QScrollBar:horizontal {\n"
-"    background-color: #2D2A2E; /* Dark gray */\n"
-"}\n"
-"\n"
-"QScrollBar::handle:vertical, QScrollBar::handle:horizontal {\n"
-"    background-color: #5A595C; /* Lighter gray */\n"
-"    border-radius: 6px;\n"
-"}\n"
-"\n"
-"QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,\n"
-"QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal,\n"
-"QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,\n"
-"QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {\n"
-"    background: none;\n"
-"}\n"
-"\n"
-"/* Menus */\n"
-"QMenuBar {\n"
-"    background-color: #2D2A2E; /* Dark gray */\n"
-"    color: #FFD866; /* Golden text */\n"
-"}\n"
-"\n"
-"QMenuBar::item {\n"
-"    background-color: transparent;\n"
-"    padding: 5px 10px;\n"
-"}\n"
-"\n"
-"QMenuBar::item:selected {\n"
-"    background-color: #5A595C; /* Lighter gray */\n"
-"}\n"
-"\n"
-"QMenu {\n"
-"    background-color: #3E3D40; /* Dark gray */\n"
-"    color: #FFD866; /* Golden text */\n"
-"    border: 1px solid #5A595C;\n"
-"}\n"
-"\n"
-"QMenu::item {\n"
-"    padding: 5px 20px;\n"
-"}\n"
-"\n"
-"QMenu::item:selected {\n"
-"    background-color: #5A595C;\n"
-"}\n"
-"\n"
-"/* Tabs */\n"
-"QTabWidget::pane {\n"
-"    border: 1px solid #5A595C;\n"
-"    background-color: #3E3D40;\n"
-"}\n"
-"\n"
-"QTabBar::tab {\n"
-"    background-color: #3E3D40;\n"
-"    color: #FFD866; /* Golden text */\n"
-"    padding: 8px 12px;\n"
-"    border: 1px solid #5A595C;\n"
-"    border-bottom: none;\n"
-"    border-top-left-radius: 4px;\n"
-"    border-top-right-radius: 4px;\n"
-"}\n"
-"\n"
-"QTabBar::tab:selected {\n"
-"    background-color: #2D2A2E;\n"
-"    border-color: #5A595C;\n"
-"}\n"
-"\n"
-"QTabBar::tab:hover {\n"
-"    background-color: #FFD866;\n"
-"    color: #2D2A2E;\n"
-"}\n"
-"\n"
-"/* Sliders */\n"
-"QSlider::groove:horizontal {\n"
-"    background-color: #5A595C;\n"
-"    height: 6px;\n"
-"    border-radius: 3px;\n"
-"}\n"
-"\n"
-"QSlider::handle:horizontal {\n"
-"    background-color: #FFD866;\n"
-"    width: 16px;\n"
-"    height: 16px;\n"
-"    margin: -5px 0;\n"
-"    border-radius: 8px;\n"
-"}\n"
-"\n"
-"/* Progress Bars */\n"
-"QProgressBar {\n"
-"    background-color: #3E3D40;\n"
-"    border: 1px solid #5A595C;\n"
-"    border-radius: 4px;\n"
-"    text-align: center;\n"
-"    color: #FFD866; /* Golden text */\n"
-"}\n"
-"\n"
-"QProgressBar::chunk {\n"
-"    background-color: #FFD866;\n"
-"    border-radius: 4px;\n"
-"}\n"
-"\n"
-"/* Checkboxes and Radio Buttons */\n"
-"QCheckBox, QRadioButton {\n"
-"    color: #FFD866; /* Golden text */\n"
-"    spacing: 5px;\n"
-"}\n"
-"\n"
-"QCheckBox::indicator, QRadioButton::indicator {\n"
-"    width: 16px;\n"
-"    height: 16px;\n"
-"    border: 1px solid #5A595C;\n"
-"    border-radius: 3px;\n"
-"    background-color: #3E3D40;\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked, QRadioButton::indicator:checked {\n"
-"    background-color: #FFD866;\n"
-"    border: 1px solid #FFD866;\n"
-"}\n"
-"\n"
-"/* Group Boxes */\n"
-"QGroupBox {\n"
-"    border: 1px solid #5A595C;\n"
-"    border-radius: 4px;\n"
-"    margin-top: 10px;\n"
-"    padding-top: 10px;\n"
-"    color: #FFD866; /* Golden text */\n"
-"}\n"
-"\n"
-"QGroupBox::title {\n"
-"    subcontrol-origin: margin;\n"
-"    subcontrol-position: top left;\n"
-"    padding: 0 5px;\n"
-"    background-color: #2D2A2E;\n"
-"}\n"
-"")
+        MainWindow.setStyleSheet("""/* Main Application Background */
+QWidget {
+    background-color: #2D2A2E; /* Dark gray background */
+    color: #FFD866; /* Golden text */
+    font-family: "Consolas", "Monospace";
+    font-size: 14px;
+}
+
+/* Buttons */
+QPushButton {
+    background-color: #FFD866; /* Golden hue */
+    color: #2D2A2E; /* Dark gray text for contrast */
+    border: 1px solid #FFD866; /* Golden border */
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+QPushButton:hover {
+    background-color: #FFB52E; /* Slightly darker golden hue on hover */
+    border: 1px solid #FFB52E;
+}
+
+QPushButton:pressed {
+    background-color: #FF9F00; /* Even darker golden hue when pressed */
+    border: 1px solid #FF9F00;
+}
+
+/* Text Inputs (QLineEdit, QTextEdit) */
+QLineEdit, QTextEdit {
+    background-color: #3E3D40; /* Dark gray */
+    color: #FFD866; /* Golden text */
+    border: 1px solid #5A595C; /* Slightly lighter gray border */
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 14px;
+}
+/* Vertical Sliders (matching horizontal style) */
+QSlider::groove:vertical {
+    background-color: #5A595C;
+    width: 6px;  /* Changed from height for vertical */
+    border-radius: 3px;
+}
+
+QSlider::handle:vertical {
+    background-color: #FFD866;
+    width: 16px;  /* Maintain same size as horizontal */
+    height: 16px;
+    margin: 0 -5px;  /* Adjusted for vertical orientation */
+    border-radius: 8px;
+}
+
+/* Optional: Add these if you want to style tick marks */
+QSlider::sub-page:vertical {
+    background-color: #FFD866;
+}
+
+QSlider::add-page:vertical {
+    background-color: #5A595C;
+}
+
+QLineEdit:focus, QTextEdit:focus {
+    border: 1px solid #FFD866; /* Yellow border on focus */
+}
+
+/* Labels */
+QLabel {
+    color: #FFD866; /* Golden text */
+    font-size: 14px;
+}
+
+/* Scrollbars */
+QScrollBar:vertical, QScrollBar:horizontal {
+    background-color: #2D2A2E; /* Dark gray */
+}
+
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    background-color: #5A595C; /* Lighter gray */
+    border-radius: 6px;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal,
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+/* Menus */
+QMenuBar {
+    background-color: #2D2A2E; /* Dark gray */
+    color: #FFD866; /* Golden text */
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 5px 10px;
+}
+
+QMenuBar::item:selected {
+    background-color: #5A595C; /* Lighter gray */
+}
+
+QMenu {
+    background-color: #3E3D40; /* Dark gray */
+    color: #FFD866; /* Golden text */
+    border: 1px solid #5A595C;
+}
+
+QMenu::item {
+    padding: 5px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #5A595C;
+}
+
+/* Tabs */
+QTabWidget::pane {
+    border: 1px solid #5A595C;
+    background-color: #3E3D40;
+}
+
+QTabBar::tab {
+    background-color: #3E3D40;
+    color: #FFD866; /* Golden text */
+    padding: 8px 12px;
+    border: 1px solid #5A595C;
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+QTabBar::tab:selected {
+    background-color: #2D2A2E;
+    border-color: #5A595C;
+}
+
+QTabBar::tab:hover {
+    background-color: #FFD866;
+    color: #2D2A2E;
+}
+
+/* Sliders */
+QSlider::groove:horizontal {
+    background-color: #5A595C;
+    height: 6px;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background-color: #FFD866;
+    width: 16px;
+    height: 16px;
+    margin: -5px 0;
+    border-radius: 8px;
+}
+
+/* Progress Bars */
+QProgressBar {
+    background-color: #3E3D40;
+    border: 1px solid #5A595C;
+    border-radius: 4px;
+    text-align: center;
+    color: #FFD866; /* Golden text */
+}
+
+QProgressBar::chunk {
+    background-color: #FFD866;
+    border-radius: 4px;
+}
+
+/* Checkboxes and Radio Buttons */
+QCheckBox, QRadioButton {
+    color: #FFD866; /* Golden text */
+    spacing: 5px;
+}
+
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #5A595C;
+    border-radius: 3px;
+    background-color: #3E3D40;
+}
+
+QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+    background-color: #FFD866;
+    border: 1px solid #FFD866;
+}
+
+/* Group Boxes */
+QGroupBox {
+    border: 1px solid #5A595C;
+    border-radius: 4px;
+    margin-top: 10px;
+    padding-top: 10px;
+    color: #FFD866; /* Golden text */
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 5px;
+    background-color: #2D2A2E;
+}
+
+""")
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
